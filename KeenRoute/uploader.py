@@ -1,4 +1,4 @@
-from aggregator import fetch_and_aggregate, chunk_list
+from KeenRoute.aggregator import fetch_and_aggregate, chunk_list
 import configparser
 import time, os
 import paramiko

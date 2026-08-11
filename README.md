@@ -59,8 +59,15 @@ network_engineering/
 │   ├── geo.py
 │   └── GeoLite2-Country.mmdb
 ├── KeenRoute/            # Агрегация CIDR и SSH-деплой на роутер
-│   ├── script.py
-│   └── KeenClient.py
+│   ├── sources/
+│   │   ├── custom_cidrs.lst
+│   │   ├── entware_urls.source
+│   │   └── ndms_urls.source
+│   ├── __main__.py
+│   ├── aggregator.py
+│   ├── ndms.py
+│   ├── settings.conf
+│   └── uploader.py
 ├── TorrentCIDRData/       # Конвертация форматов для торрент-клиентов и AmneziaWG
 │   ├── convert_ip.py
 │   ├── amneziawg.json
@@ -93,7 +100,7 @@ python -m GeoRouting.geo
 
 **KeenRoute** — агрегация списков и деплой на роутер по SSH (пароли запрашиваются интерактивно, не хранятся в коде):
 ```bash
-python -m KeenRoute.script
+python -m KeenRoute
 ```
 
 **TorrentCIDRData** — конвертация актуального списка с роутера в форматы для AmneziaWG и торрент-клиентов:
