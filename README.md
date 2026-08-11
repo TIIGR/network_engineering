@@ -56,7 +56,7 @@
 ```
 network_engineering/
 ├── GeoRouting/          # Гео-балансировка трафика (AMS / ALM)
-│   ├── geo.py
+│   ├── __main__.py
 │   └── GeoLite2-Country.mmdb
 ├── KeenRoute/            # Агрегация CIDR и SSH-деплой на роутер
 │   ├── sources/
@@ -69,7 +69,7 @@ network_engineering/
 │   ├── settings.conf
 │   └── uploader.py
 ├── TorrentCIDRData/       # Конвертация форматов для торрент-клиентов и AmneziaWG
-│   ├── convert_ip.py
+│   ├── __main__.py
 │   ├── amneziawg.json
 │   └── ipfilter4torrents.dat
 └── BashScripts/           # Hook- и cron-скрипты для Entware/KeeneticOS
