@@ -1,5 +1,4 @@
-import sys
-sys.path.append('.')
+import sys; sys.path.append('.')
 from getpass import getpass
 import paramiko
 import ipaddress

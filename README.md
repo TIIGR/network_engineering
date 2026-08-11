@@ -95,7 +95,7 @@ cd network_engineering
 
 **GeoRouting** — распределение CIDR-списков по гео-зонам:
 ```bash
-python -m GeoRouting.geo
+python -m GeoRouting
 ```
 
 **KeenRoute** — агрегация списков и деплой на роутер по SSH (пароли запрашиваются интерактивно, не хранятся в коде):
@@ -105,7 +105,7 @@ python -m KeenRoute
 
 **TorrentCIDRData** — конвертация актуального списка с роутера в форматы для AmneziaWG и торрент-клиентов:
 ```bash
-python TorrentCIDRData/convert_ip.py
+python -m TorrentCIDRData
 ```
 
 **BashScripts** — два скрипта с разным способом запуска:

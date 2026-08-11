@@ -1,10 +1,9 @@
-import sys
-sys.path.append('.')
+import sys; sys.path.append('.')
 import ipaddress
 import geoip2.database
 import geoip2.errors
 import time
-from KeenRoute.script import fetch_and_aggregate
+from KeenRoute.aggregator import fetch_and_aggregate
 
 DB_PATH = "GeoRouting\GeoLite2-Country.mmdb"
 OUTPUT_FILE = "GeoRouting\\routing_rules.txt"
