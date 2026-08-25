@@ -54,12 +54,51 @@ def upload2entware(cli, networks):
         ssh.connect(host, port=port, username=user, password=passwd, timeout=15,
                     look_for_keys=False, allow_agent=False)
         
-        print(f"[*] Запись данных в файл {ENTWARE_REMOTE_FILE_PATH} (режим stdin)...")
+        print(f"[*] Чтение текущего файла {ENTWARE_REMOTE_FILE_PATH}...")
+        _, stdout_read, stderr_read = ssh.exec_command(f"sudo cat {ENTWARE_REMOTE_FILE_PATH}")
+        existing_content = stdout_read.read().decode('utf-8').strip()
+        
+        lines = existing_content.splitlines() if existing_content else []
+        output_lines = []
+        in_target_block = False
+        block_processed = False
+        
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+            
+            if not in_target_block:
+                if line == "##CIDR" and i + 1 < len(lines) and lines[i+1].strip() == "/FirstVDS":
+                    in_target_block = True
+                    block_processed = True
+                    output_lines.append("##CIDR")
+                    output_lines.append("/FirstVDS")
+                    
+                    for net in networks:
+                        output_lines.append(str(net))
+                    
+                    i += 1
+                else:
+                    output_lines.append(line)
+            else:
+                if line.startswith("##"):
+                    in_target_block = False
+                    output_lines.append(line)
+            i += 1
+            
+        if not block_processed:
+            if output_lines and not output_lines[-1].strip() == "":
+                output_lines.append("")
+            output_lines.append("##CIDR")
+            output_lines.append("/FirstVDS")
+            for net in networks:
+                output_lines.append(str(net))
+        
+        new_content = "\n".join(output_lines) + "\n"
+        
+        print(f"[*] Запись обновленных данных в файл {ENTWARE_REMOTE_FILE_PATH}...")
         stdin, stdout, stderr = ssh.exec_command(f"sudo cat > {ENTWARE_REMOTE_FILE_PATH}")
-        stdin.write("##CIDR\n")
-        stdin.write("/FirstVDS\n")
-        for net in networks:
-            stdin.write(f"{net}\n")
+        stdin.write(new_content)
         stdin.close()
         
         error_msg = stderr.read().decode().strip()
@@ -74,6 +113,7 @@ def upload2entware(cli, networks):
         exit_status = stdout.channel.recv_exit_status() 
         output = stdout.read().decode().strip()
         errors = stderr.read().decode().strip()
+        
         if exit_status == 0:
             if output:
                 print(f"{output}")

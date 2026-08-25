@@ -3,6 +3,38 @@ import ipaddress
 
 STRICT_MODE = False 
 
+ADDITIONAL_BOGONS = [
+    ipaddress.ip_network('100.64.0.0/10'),  # CGNAT (включает 100.82.0.0/16 и др.)
+    ipaddress.ip_network('192.0.0.0/24'),   # IETF Protocol Assignments
+    ipaddress.ip_network('198.18.0.0/15'),  # Benchmark Testing
+    ipaddress.ip_network('192.88.99.0/24')  # 6to4 Relay Anycast
+]
+
+def filter_private_networks(networks):
+    filtered = []
+    excluded_count = 0
+    
+    for net in networks:
+        if (net.is_private or net.is_loopback or 
+            net.is_link_local or net.is_multicast or net.is_reserved):
+            excluded_count += 1
+            continue
+            
+        is_bogon = False
+        for bogon in ADDITIONAL_BOGONS:
+            if net.overlaps(bogon):
+                is_bogon = True
+                break
+                
+        if is_bogon:
+            excluded_count += 1
+        else:
+            filtered.append(net)
+            
+    if excluded_count > 0:
+        print(f"[*] Исключено {excluded_count} частных/зарезервированных подсетей перед агрегацией.")
+    return filtered
+
 def parse_custom_cidrs(cidr_list):
     networks = []
     for line in cidr_list:
@@ -46,6 +78,8 @@ def fetch_and_aggregate(urls, custom_cidrs=None):
                     continue
         except Exception as e:
             exit(f" [!] Ошибка при загрузке {url}: {e}")
+
+    networks = filter_private_networks(networks)
 
     #print("[*] Выполняется агрегация без добавления лишних узлов...")
     aggregated = list(ipaddress.collapse_addresses(networks))
