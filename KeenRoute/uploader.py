@@ -154,7 +154,7 @@ def upload2keenos(cli, networks):
 
         print("[*] Очистка старых групп...")
         for i in range(1, len(chunks) + 5):
-            channel.send(f"dns-proxy no route object-group {BASE_GROUP_NAME}_{i} Wireguard0\n")
+            channel.send(f"dns-proxy no route object-group {BASE_GROUP_NAME}_{i} Wireguard1\n")
             time.sleep(0.1)
             channel.send(f"dns-proxy no route object-group {BASE_GROUP_NAME}_{i} Wireguard2\n")
             time.sleep(0.1)
@@ -176,11 +176,11 @@ def upload2keenos(cli, networks):
                 
             channel.send("exit\n")
             time.sleep(0.1)
-            channel.send(f"dns-proxy route object-group {group_name} Wireguard0 auto\n")
+            channel.send(f"dns-proxy route object-group {group_name} Wireguard1 auto\n")
             time.sleep(0.1)
             channel.send(f"dns-proxy route object-group {group_name} Wireguard2 auto\n")
             time.sleep(0.1)
-
+            
         print("[*] Сохранение конфигурации в память роутера...")
         channel.send("system configuration save\n")
         time.sleep(0.5)

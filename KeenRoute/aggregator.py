@@ -1,5 +1,6 @@
 import urllib.request
 import ipaddress
+import json
 
 STRICT_MODE = False 
 
@@ -59,23 +60,41 @@ def fetch_and_aggregate(urls, custom_cidrs=None):
         print(f"\n\n\n[*] Добавлено пользовательских подсетей: {len(parsed_custom)}")
 
     for url in urls:
+        if not url.startswith('http'):
+            url = 'https://' + url
+            
         #print(f"[*] Загрузка списков из: {url}")
         try:
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req, timeout=10) as response:
                 content = response.read().decode('utf-8')
-                
-            for line in content.splitlines():
-                line = line.strip()
-                if not line or line.startswith('#'):
-                    continue
+            
+            if url.endswith('.json'):
                 try:
-                    net = ipaddress.ip_network(line, strict=STRICT_MODE)
-                    if net.version == 4:
-                        networks.append(net)
-                except ValueError:
-                    #print(f" [!] Пропущен некорректный CIDR: {line}")
-                    continue
+                    data = json.loads(content)
+                    if 'prefixes' in data:
+                        for item in data['prefixes']:
+                            if 'ipv4Prefix' in item:
+                                net = ipaddress.ip_network(item['ipv4Prefix'], strict=STRICT_MODE)
+                                if net.version == 4:
+                                    networks.append(net)
+                    else:
+                        print(f" [!] Предупреждение: Неизвестная структура JSON по ссылке {url}")
+                except json.JSONDecodeError:
+                    print(f" [!] Ошибка декодирования JSON из: {url}")
+            
+            else:
+                for line in content.splitlines():
+                    line = line.strip()
+                    if not line or line.startswith('#'):
+                        continue
+                    try:
+                        net = ipaddress.ip_network(line, strict=STRICT_MODE)
+                        if net.version == 4:
+                            networks.append(net)
+                    except ValueError:
+                        #print(f" [!] Пропущен некорректный CIDR: {line}")
+                        continue
         except Exception as e:
             exit(f" [!] Ошибка при загрузке {url}: {e}")
 
